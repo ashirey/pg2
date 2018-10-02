@@ -9,4 +9,4 @@ server.o: server.c
 	$(CC) -Wall -c server.c -o server.o
 
 clean:
-	-rm *.o
+	-rm *.o server
