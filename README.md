@@ -12,6 +12,7 @@ The following is the list of all of the included files for this project:
   - in server directory:
     - server.c
     - Makefile
+    - tempdirectory (this is a directory)
   - in client directory:
     - client.c
     - Makefile
@@ -44,19 +45,25 @@ side in the archive:
 - DL <FILENAME>
   - This will download a file from the server's directory into the client's
   directory.
+  - Specific example: $ DL server.c
 - UP <FILENAME>
   - This will upload a file from the client's directory into the server's
   directory.
+  - Specific example: $ UP client.c
 - RM <FILENAME>
   - This will remove a file from the server's directory, as specified by the
   file name in the argument.
+  - Specific example: $ RM fake.txt
 - MKDIR <DIRNAME>
   - This will create a new directory in the server's directory.
+  - Specific example: $ MKDIR testdir
 - RMDIR <DIRNAME>
   - This will remove a directory from the server's directory.
+  - Specific example: $ RMDIR tempdirectory
 - CD <PATH/DIRNAME>
   - This will cause the server to operate out of the newly changed directory,
   as specified by the path in the argument.
+  - Specific example: $ CD ../client
 - EXIT
   - This causes the client to close its connection with the server, and end the
   executable's process.
