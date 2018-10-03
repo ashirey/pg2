@@ -36,7 +36,27 @@ following way:
   - (Here, the host name and port number are specified as the second and third
     command line arguments.)
 
-The following is a list of example commands to run this code in the archive:
+The following is a list of example commands to run this code from the client-
+side in the archive:
 - LS
   - This will print a list of the directory of the server in the client's
   terminal window.
+- DL <FILENAME>
+  - This will download a file from the server's directory into the client's
+  directory.
+- UP <FILENAME>
+  - This will upload a file from the client's directory into the server's
+  directory.
+- RM <FILENAME>
+  - This will remove a file from the server's directory, as specified by the
+  file name in the argument.
+- MKDIR <DIRNAME>
+  - This will create a new directory in the server's directory.
+- RMDIR <DIRNAME>
+  - This will remove a directory from the server's directory.
+- CD <PATH/DIRNAME>
+  - This will cause the server to operate out of the newly changed directory,
+  as specified by the path in the argument.
+- EXIT
+  - This causes the client to close its connection with the server, and end the
+  executable's process.
