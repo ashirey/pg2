@@ -12,7 +12,7 @@
 #define MAX_LINE 256
 
 int download(char[], int s);
-int list(char[], ins s);
+int list(int s);
 
 int main(int argc, char* argv[]){
 	struct hostent *hp;
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
 			download(buf, s);
 		}
 		else if(!strncmp(buf, "LS", 2)){
-			list(buf, s);
+			list(s);
 		}
 		printf("enter a command:\n");
 	}
@@ -79,14 +79,27 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-int list(char[], int s){
+int list(int s){
 	// send ls command to server
+	char * cmd = "LS";
+	char buf[MAX_LINE];
+	ssize_t len;
 
+	if(send(s, cmd, sizeof(cmd), 0)==-1){
+		perror("client send error");
+		return -1;
+	}
 	// receive size of directory listing, and go into loop
+	if((len=recv(s, buf, sizeof(buf), 0))==-1){
+		perror("received errorUMM\n");
+		return -1;
+	}
+	printf(buf);
+
+	return 0;
 
 	// display listings to user
 }
-
 
 int download(char buf[MAX_LINE], int s){
 	// send command
@@ -118,14 +131,14 @@ int download(char buf[MAX_LINE], int s){
 		char buf[MAX_LINE];
 		int len;
 
-		// get 32 bit int indicatingn if file exists
+		// get 32 bit int indicating if file exists
 		int32_t int32;
 		char int_str[MAX_LINE];
 		if((len=recv(s, &int32, sizeof(int32_t), 0))==-1){
 			perror("received errorUMM");
 			exit(1);
 		}
-		ntohl(
+		//ntohl(
 		printf("% int\n", int32);
 
 		// get server md5 hash
@@ -152,7 +165,7 @@ int download(char buf[MAX_LINE], int s){
 		printf("hashes: %s %s\n", buf, hash_buf);
 		// get file size or -1
 
-		return 0;	
+		return 0;
 	}
 	else{
 		printf("no file name given\n");
