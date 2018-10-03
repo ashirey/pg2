@@ -42,6 +42,7 @@ side in the archive:
 - LS
   - This will print a list of the directory of the server in the client's
   terminal window.
+  - Specific example: $ LS
 - DL <FILENAME>
   - This will download a file from the server's directory into the client's
   directory.
@@ -67,3 +68,4 @@ side in the archive:
 - EXIT
   - This causes the client to close its connection with the server, and end the
   executable's process.
+  - Specific example: $ EXIT
