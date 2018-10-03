@@ -13,7 +13,7 @@
 #define MAX_LINE 256
 
 /* Function Definitions */
-int list(char buf[MAX_LINE], int s);
+int list(int new_s);
 void download(int);
 
 int main(int argc, char * argv[]){
@@ -77,12 +77,9 @@ int main(int argc, char * argv[]){
 			}
 			if (len==0) break;
 
-			printf("%s\n", buf);
 			// Parse LS client input
 			if(!strncmp(buf, "LS", 2)){
-				printf("LS Command received\n");
-				int n = list(buf, s);
-				if( n==-1 ){
+				if( list(new_s)==-1 ){
 					perror("LS failure\n");
 					exit(1);
 				}
@@ -102,21 +99,43 @@ int main(int argc, char * argv[]){
 
 /* Function Definitions */
 
-int list(char buf[MAX_LINE], int s){
-	int len;
-	printf("The list function has been called\n");
+int list(int new_s){
+	uint32_t len;
+	FILE *fp;
+	char buf[MAX_LINE];
+	char listing[MAX_LINE*100];
 
-	FILE *fp = popen("ls", "r");
-	while (fgets(buf, strlen(buf), fp)){
-		buf[MAX_LINE-1] = '\0';
+	fp = popen("ls -l", "r");
+
+	if (!fp) {
+		perror("ls command failed\n");
+		return -1;
 	}
-	len = strlen(buf) + 1;
-	if(send(s,buf,len,0)==-1){
+
+	while(!feof(fp)) {
+		bzero(buf, MAX_LINE);
+		if (fgets(buf, MAX_LINE, fp) != NULL) {
+			sprintf(listing, "%s%s", listing, buf);
+		}
+	}
+
+	listing[MAX_LINE-1] = '\0';
+
+	len = strlen(listing) + 1;
+
+	if(send(new_s,listing,len,0)==-1){
 		perror("server send error - LS\n");
 		return -1;
 	}
+
+	bzero(listing, MAX_LINE*100);
+	bzero(buf, MAX_LINE);
+
 	pclose(fp);
 	return 0;
+
+}
+
 void download(int new_s){
 	char file[MAX_LINE];
 	char buf[MAX_LINE];
@@ -133,7 +152,7 @@ void download(int new_s){
 	}
 
 	printf("file name %s\n", file);
-	
+
 	// check if file exists
 	f = fopen(file, "r");
 	int32_t int32;
@@ -161,13 +180,13 @@ void download(int new_s){
 			exit(1);
 		}
 
-	
+
 		// calculate md5 hash
 		FILE * fp;
 		char md5cmd[MAX_LINE];
 		char output[MAX_LINE];
 		char * hash;
-		
+
 		sprintf(md5cmd, "md5sum %s", file);
 		if((fp=popen(md5cmd, "r")) == NULL){
 			perror("md5 sum failed");
@@ -183,10 +202,10 @@ void download(int new_s){
 			perror("error sending to client\n");
 			exit(1);
 		}
-		
+
 		// server sends file to client
 		/*fread(buf, 1, MAX_LINE, fp);
 		buf[MAX_BUF-1] = '\0';
-		fclose(fp);*/	
+		fclose(fp);*/
 	}
 }
