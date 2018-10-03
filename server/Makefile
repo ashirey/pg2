@@ -1,12 +1,12 @@
 CC = gcc
 
-all: server
+all: myftpd
 
-server: server.o
-	$(CC) -Wall -o server server.o
+myftpd: server.o
+	$(CC) -Wall -o myftpd server.o
 
 server.o: server.c
 	$(CC) -Wall -c server.c -o server.o
 
 clean:
-	-rm *.o server
+	-rm *.o myftpd

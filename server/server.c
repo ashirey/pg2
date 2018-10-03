@@ -8,7 +8,6 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
-#define SERVER_PORT 41043
 #define MAX_PENDING 5
 #define MAX_LINE 256
 
@@ -16,16 +15,24 @@ int main(int argc, char * argv[]){
 
 	struct sockaddr_in sin, client_addr;
 	char buf[MAX_LINE];
-	int len;
+	int len, port;
 	socklen_t addr_len;
 	int s, new_s;
 	int opt = 1;
+
+	if(argc == 2){
+		port = atoi(argv[1]);
+	}
+	else{
+		printf("pass in host port as argument\n");
+		exit(1);
+	}
 
 	/* build address data structure */
 	bzero((char *)&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 	sin.sin_addr.s_addr = INADDR_ANY;
-	sin.sin_port = htons(SERVER_PORT);
+	sin.sin_port = htons(port);
 
 	/* setup passive open */
 	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
@@ -64,7 +71,7 @@ int main(int argc, char * argv[]){
 				exit(1);
 			}
 			if (len==0) break;
-			printf("TCP Server Received:%s", buf);
+			printf("TCP Server Received: %s\n", buf);
 		}
 		printf("Client finishes, close the connection!\n");
 		close(new_s);

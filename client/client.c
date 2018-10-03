@@ -9,23 +9,25 @@
 #include<netdb.h>
 #include<unistd.h>
 
-#define SERVER_PORT 41043
 #define MAX_LINE 256
 
+int download(char[], int s);
+
 int main(int argc, char* argv[]){
-	FILE *fp;
 	struct hostent *hp;
 	struct sockaddr_in sin;
 	char *host;
 	char buf[MAX_LINE];
 	int s;
 	int len;
+	int port;
 
-	if(argc == 2){
+	if(argc == 3){
 		host = argv[1];
+		port = atoi(argv[2]);
 	}
 	else{
-		printf("pass in host name as argument\n");
+		printf("pass in host name and port as argument\n");
 		exit(1);
 	}
 	
@@ -38,7 +40,7 @@ int main(int argc, char* argv[]){
 	bzero((char *)&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
-	sin.sin_port = htons(SERVER_PORT);
+	sin.sin_port = htons(port);
 
 	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0){
 		perror("simplex-talk: socket");
@@ -57,14 +59,13 @@ int main(int argc, char* argv[]){
 	printf("enter a command:\n");
 	while (fgets(buf, sizeof(buf), stdin)){
 		buf[MAX_LINE-1] = '\0';
-		if(!strncmp(buf, "Exit", 4)){
+		if(!strncmp(buf, "EXIT", 4)){
 			printf("exiting\n");
 			break;
 		}
-		len = strlen(buf) + 1;
-		if(send(s, buf, len, 0) == -1){
-			perror("client send error");
-			exit(1);
+		else if(!strncmp(buf, "DL", 2)){
+			int done = download(buf, s);
+			printf("%d\n", done);
 		}
 		printf("enter a command:\n");
 	}
@@ -73,3 +74,32 @@ int main(int argc, char* argv[]){
 	
 	return 0;
 }
+
+int download(char buf[MAX_LINE], int s){
+	// get file name
+	char *f;
+	short int file_len;
+	char file_buf[MAX_LINE];
+	
+	f = strtok(buf, " ");
+	if(f){
+		f = strtok(NULL, " \n");
+		//file_len = strlen(f);
+		//snprintf(file_buf, sizeof(file_buf), "%d %s", file_len, f);
+		
+		// send length of file name and name
+		//file_len = strlen(file_buf) + 1;
+		//printf("%s, size = %d\n", file_buf, file_len);
+		if(send(s, f, sizeof(f), 0) == -1){
+			perror("client send error");
+			exit(1);
+		}
+		
+		return 0;	
+	}
+	else{
+		printf("no file name given\n");
+		return 1;
+	}
+}
+
