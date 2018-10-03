@@ -86,24 +86,23 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
- int list(int s){
+ void list(int s){
  	// send ls command to server
  	char * cmd = "LS";
  	char buf[MAX_LINE];
  	ssize_t len;
- 
+
  	if(send(s, cmd, sizeof(cmd), 0)==-1){
  		perror("client send error");
- 		return -1;
+ 		exit(1);
  	}
  	// receive size of directory listing, and go into loop
  	if((len=recv(s, buf, sizeof(buf), 0))==-1){
  		perror("received errorUMM\n");
- 		return -1;
+ 		exit(1);
  	}
  	// display listings to user
 	printf(buf);
- 	return 0;
  }
 
 void download(char buf[MAX_LINE], int s){
@@ -169,7 +168,7 @@ void download(char buf[MAX_LINE], int s){
 			}
 		}
 		gettimeofday(&end, 0);
-		long msec = (end.tv_sec - start.tv_sec)*1000000L + end.tv_usec - start.tv_usec;	
+		long msec = (end.tv_sec - start.tv_sec)*1000000L + end.tv_usec - start.tv_usec;
 		double sec = 1.0*msec / 1000000L;
 		fclose(fp);
 		printf("%lu bytes transferred in %lf seconds\n", (unsigned long) int32, sec);
@@ -211,26 +210,26 @@ void rm_file(char buf[MAX_LINE], int s){
 	// get file name
 	char *f;
 	char file_buf[MAX_LINE];
-	int len; 
+	int len;
 	f = strtok(buf, " ");
 	if(f){
 		f = strtok(NULL, " \n");
 		strcpy(file_buf, f);
 		bzero(buf, MAX_LINE);
-		
+
 		// send file name so server can verify exists
 		if(send(s, file_buf, MAX_LINE, 0) == -1){
 			perror("client send error");
 			exit(1);
 		}
-		
+
 		// receive positive or negative confirmation
-		if((len=recv(s, buf, MAX_LINE, 0))==-1){	
+		if((len=recv(s, buf, MAX_LINE, 0))==-1){
 			perror("received error");
 			exit(1);
 		}
 		int result = atoi(buf);
-		
+
 		bzero(buf, MAX_LINE);
 		if(result < 0){
 			printf("The file does not exist on the server\n");
@@ -240,27 +239,27 @@ void rm_file(char buf[MAX_LINE], int s){
 			// check before deleting
 			bzero(buf, MAX_LINE);
 			printf("are you sure you want to delete %s?\n", f);
-			fgets(buf, sizeof(buf), stdin);	
+			fgets(buf, sizeof(buf), stdin);
 			if(!strncmp(buf, "Yes", 3) || !strncmp(buf, "yes", 3)){
 				// send deletion request
 				char * del = "delete";
 				bzero(buf, MAX_LINE);
 				strcpy(buf, del);
-				
+
 				if(send(s, buf, MAX_LINE, 0) == -1){
 					perror("client send error");
 					exit(1);
 				}
-				
+
 				bzero(buf, MAX_LINE);
 				// receive positive or negative confirmation of deletion
 				if((len=recv(s, buf, MAX_LINE, 0))==-1){
 					perror("received error");
 					exit(1);
 				}
-				
+
 				result = atoi(buf);
-				
+
 				if(result > 0){
 					printf("file deleted\n");
 				}
@@ -272,12 +271,12 @@ void rm_file(char buf[MAX_LINE], int s){
 				char * del = "no delete";
 				bzero(buf, MAX_LINE);
 				strcpy(buf, del);
-				
+
 				if(send(s, buf, MAX_LINE, 0) == -1){
 					perror("client send error");
 					exit(1);
 				}
-				
+
 				bzero(buf, MAX_LINE);
 
 			}
