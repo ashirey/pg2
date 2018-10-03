@@ -10,11 +10,13 @@
 #include<netinet/in.h>
 #include<netdb.h>
 #include<unistd.h>
+#include<sys/time.h>
+#include<sys/stat.h>
 
 #define MAX_LINE 256
 
 void download(char[], int s);
-void list(char[], int s);
+void list(int s);
 void rm_file(char[], int s);
 
 int main(int argc, char* argv[]){
@@ -23,7 +25,6 @@ int main(int argc, char* argv[]){
 	char *host;
 	char buf[MAX_LINE];
 	int s;
-	int len;
 	int port;
 
 	if(argc == 3){
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-int list(int s){
+void list(int s){
 	// send ls command to server
 	char * cmd = "LS";
 	char buf[MAX_LINE];
@@ -93,16 +94,14 @@ int list(int s){
 
 	if(send(s, cmd, sizeof(cmd), 0)==-1){
 		perror("client send error");
-		return -1;
+		exit(1);
 	}
 	// receive size of directory listing, and go into loop
 	if((len=recv(s, buf, sizeof(buf), 0))==-1){
-		perror("received errorUMM\n");
-		return -1;
+		perror("received error\n");
+		exit(1);
 	}
 	printf(buf);
-
-	return 0;
 
 	// display listings to user
 }
