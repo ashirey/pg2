@@ -13,6 +13,7 @@ The following is the list of all of the included files for this project:
     - server.c
     - Makefile
     - tempdirectory (this is a directory)
+    - SmallFile.txt
   - in client directory:
     - client.c
     - Makefile
@@ -47,7 +48,7 @@ side in the archive:
 - DL <FILENAME>
   - This will download a file from the server's directory into the client's
   directory.
-  - Specific example: $ DL server.c
+  - Specific example: $ DL MediumFile.pdf
 - UP <FILENAME>
   - This will upload a file from the client's directory into the server's
   directory.
