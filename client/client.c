@@ -9,7 +9,7 @@
 #include<netdb.h>
 #include<unistd.h>
 
-#define SERVER_PORT 41043
+#define SERVER_PORT 41044
 #define MAX_LINE 4096
 
 int main(int argc, char* argv[]){
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 	printf("client connected\n");
-	
+
 	// prompt for input
 	printf("enter a command:\n");
 	while (fgets(buf, sizeof(buf), stdin)){

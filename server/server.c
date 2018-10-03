@@ -8,9 +8,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
-#define SERVER_PORT 41043
+#define SERVER_PORT 41044
 #define MAX_PENDING 5
 #define MAX_LINE 4096
+
+/* Function Declarations */
+int list(char buf[MAX_LINE], int s);
 
 int main(int argc, char * argv[]){
 
@@ -69,7 +72,6 @@ int main(int argc, char * argv[]){
 			// Server side LS functionality
 			if(!strncmp(buf, "LS", 2)){
 				printf("LS Function beginning from server side\n");
-				
 			}
 
 
@@ -78,5 +80,23 @@ int main(int argc, char * argv[]){
 		close(new_s);
 	}
 	close (s);
+	return 0;
+}
+
+/* Function Definitions */
+
+int list(char buf[MAX_LINE], int s){
+	int len;
+
+	FILE *fp = popen("ls", "r");
+	while (fgets(buf, strlen(buf), fp)){
+		buf[MAX_LINE-1] = '\0';
+	}
+	len = strlen(buf) + 1;
+	if(send(s,buf,len,0)==-1){
+		perror("server send error - LS");
+		return -1;
+	}
+	pclose(fp);
 	return 0;
 }
