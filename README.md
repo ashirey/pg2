@@ -1,9 +1,11 @@
 # pg2
 
-Abigail Shirey & Rita Shultz
+Abigail Shirey & Rita Shultz | ashirey & rshultz
+==
 CSE 30264: Computer Networks
 3 October 2018
 Programming Assignment 2 README
+==
 
 The following is the list of all of the included files for this project:
 - in pg2 directory:
@@ -13,10 +15,28 @@ The following is the list of all of the included files for this project:
   - in client directory:
     - client.c
     - Makefile
-  - ....
+  - fake.txt
 
 The project can be compiled and executed by utilizing the following instructions:
 
+The server implementation and the client implementation are held in two separate
+directories, named "server" and "client". Each directory has its own Makefile.
+To make the executable for the server and client, simply go into each directory
+and type "make". The executable for the server is called "myftpd", and the
+executable for the client is called "myftp". When actually running and testing
+this code, the server and client should be run on two different student
+machines. For example, the client executable can run on student00, while the
+server executable runs on student02. They should be executed initially in the
+following way:
+- server (on student02):
+  - $ ./myftpd 41044
+  - (Here, the port number is specified as the second command line argument.)
+- client (on student00):
+  - $ ./myftp student02.cse.nd.edu 41044
+  - (Here, the host name and port number are specified as the second and third
+    command line arguments.)
 
 The following is a list of example commands to run this code in the archive:
--
+- LS
+  - This will print a list of the directory of the server in the client's
+  terminal window.
