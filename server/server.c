@@ -11,6 +11,9 @@
 #define MAX_PENDING 5
 #define MAX_LINE 256
 
+/* Function Definitions */
+int list(char buf[MAX_LINE], int s);
+
 int main(int argc, char * argv[]){
 
 	struct sockaddr_in sin, client_addr;
@@ -71,11 +74,42 @@ int main(int argc, char * argv[]){
 				exit(1);
 			}
 			if (len==0) break;
+
+			printf("%s\n", buf);
+			// Parse LS client input
+			if(!strncmp(buf, "LS", 2)){
+				printf("LS Command received\n");
+				int n = list(buf, s);
+				if( n==-1 ){
+					perror("LS failure\n");
+					exit(1);
+				}
+			}
+
 			printf("TCP Server Received: %s\n", buf);
 		}
 		printf("Client finishes, close the connection!\n");
 		close(new_s);
 	}
 	close (s);
+	return 0;
+}
+
+/* Function Definitions */
+
+int list(char buf[MAX_LINE], int s){
+	int len;
+	printf("The list function has been called\n");
+
+	FILE *fp = popen("ls", "r");
+	while (fgets(buf, strlen(buf), fp)){
+		buf[MAX_LINE-1] = '\0';
+	}
+	len = strlen(buf) + 1;
+	if(send(s,buf,len,0)==-1){
+		perror("server send error - LS\n");
+		return -1;
+	}
+	pclose(fp);
 	return 0;
 }

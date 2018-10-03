@@ -12,6 +12,7 @@
 #define MAX_LINE 256
 
 int download(char[], int s);
+int list(char[], ins s);
 
 int main(int argc, char* argv[]){
 	struct hostent *hp;
@@ -30,13 +31,13 @@ int main(int argc, char* argv[]){
 		printf("pass in host name and port as argument\n");
 		exit(1);
 	}
-	
+
 	hp = gethostbyname(host);
 	if(!hp){
 		fprintf(stderr, "simplex-talk: unknown host: %s\n", host);
 		exit(1);
 	}
-	
+
 	bzero((char *)&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 	printf("client connected\n");
-	
+
 	// prompt for input
 	printf("enter a command:\n");
 	while (fgets(buf, sizeof(buf), stdin)){
@@ -64,29 +65,40 @@ int main(int argc, char* argv[]){
 			break;
 		}
 		else if(!strncmp(buf, "DL", 2)){
-			int done = download(buf, s);
-			printf("%d\n", done);
+			download(buf, s);
+		}
+		else if(!strncmp(buf, "LS", 2)){
+
 		}
 		printf("enter a command:\n");
 	}
 
 	close(s);
-	
+
 	return 0;
 }
+
+int list(char[], ins s){
+	// send ls command to server
+
+	// receive size of directory listing, and go into loop
+
+	// display listings to user 
+}
+
 
 int download(char buf[MAX_LINE], int s){
 	// get file name
 	char *f;
 	short int file_len;
 	char file_buf[MAX_LINE];
-	
+
 	f = strtok(buf, " ");
 	if(f){
 		f = strtok(NULL, " \n");
 		//file_len = strlen(f);
 		//snprintf(file_buf, sizeof(file_buf), "%d %s", file_len, f);
-		
+
 		// send length of file name and name
 		//file_len = strlen(file_buf) + 1;
 		//printf("%s, size = %d\n", file_buf, file_len);
@@ -94,12 +106,11 @@ int download(char buf[MAX_LINE], int s){
 			perror("client send error");
 			exit(1);
 		}
-		
-		return 0;	
+
+		return 0;
 	}
 	else{
 		printf("no file name given\n");
 		return 1;
 	}
 }
-
