@@ -62,17 +62,6 @@ int main(int argc, char* argv[]){
 			break;
 		}
 
-		// Handles LS function from user input
-		if(!strncmp(buf, "LS", 2)){
-			printf("LS function chosen for current directory\n");
-			if(send(s,buf,len,0)==-1){
-				perror("client send error");
-				exit(1);
-			}
-
-		}
-
-
 		len = strlen(buf) + 1;
 		if(send(s, buf, len, 0) == -1){
 			perror("client send error");
