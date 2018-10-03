@@ -15,6 +15,7 @@
 /* Function Definitions */
 int list(int new_s);
 void download(int);
+void rm_file(int);
 
 int main(int argc, char * argv[]){
 
@@ -87,9 +88,11 @@ int main(int argc, char * argv[]){
 					exit(1);
 				}
 			}
-
-			if(!strncmp(buf, "DL", 2)){
+			else if(!strncmp(buf, "DL", 2)){
 				download(new_s);
+			}
+			else if(!strncmp(buf, "RM", 2)){
+				rm_file(new_s);
 			}
 		}
 
@@ -209,5 +212,88 @@ void download(int new_s){
 		/*fread(buf, 1, MAX_LINE, fp);
 		buf[MAX_BUF-1] = '\0';
 		fclose(fp);*/
+	}
+}
+
+// remove a file
+void rm_file(int new_s){
+	char file[MAX_LINE];
+	int len;
+
+	// receive file name
+	if((len=recv(new_s, file, MAX_LINE, 0))==-1){
+		perror("file name receive error");
+		exit(1);
+	}
+	if (len==0){
+		exit(1);
+	}
+	
+	// check file exists
+	FILE *f;
+	f = fopen(file, "r");
+	int result;
+	char buf[MAX_LINE];
+	bzero(buf, MAX_LINE);
+	if (f == NULL){
+		result = -1;
+		sprintf(buf, "%d", result);
+		// return a negative 1 to client
+		if (send(new_s, buf, MAX_LINE, 0) == -1){
+			perror("error sending to client\n");
+			exit(1);
+		}
+		bzero(buf, MAX_LINE);
+	}
+	else{
+		result = 1;
+		// return a positive 1 to client that file exists
+		sprintf(buf, "%d", result);
+		if (send(new_s, buf, MAX_LINE, 0) == -1){
+			perror("error sending to client\n");
+			exit(1);
+		}
+		bzero(buf, MAX_LINE);
+
+		// get request to delete file
+		if((len=recv(new_s, buf, MAX_LINE, 0))==-1){
+			perror("error with delete request");
+			exit(1);
+		}
+		if (len==0){
+			exit(1);
+		}
+		if(!strncmp(buf, "delete", 6)){
+			bzero(buf, MAX_LINE);	
+			// delete file
+			char rm_cmd[MAX_LINE];
+			sprintf(rm_cmd, "rm %s", file);
+			
+			if(system(rm_cmd) < 0){
+				perror("rm failed");
+				result = -1;
+				sprintf(buf, "%d", result);
+				// return a negative 1 to client
+				if (send(new_s, buf, MAX_LINE, 0) == -1){
+					perror("error sending to client\n");
+					exit(1);
+				}
+				bzero(buf, MAX_LINE);
+			}
+			else{
+				// successful delete
+				result = 1;
+				sprintf(buf, "%d", result);
+				
+				// return a positive 1 to client
+				if (send(new_s, buf, MAX_LINE, 0) == -1){
+					perror("error sending to client\n");
+					exit(1);
+				}
+				bzero(buf, MAX_LINE);
+			}
+
+		}
+		bzero(buf, MAX_LINE);
 	}
 }
