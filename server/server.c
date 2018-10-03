@@ -67,6 +67,15 @@ int main(int argc, char * argv[]){
 				exit(1);
 			}
 			if (len==0) break;
+
+			// Parse input
+			if(!strncmp(buf, "LS", 2)){
+				if(list(buf,s)==-1){
+					printf("Error with LS\n");
+					exit(1);
+				}
+			}
+
 			printf("TCP Server Received:%s", buf);
 
 			// Server side LS functionality
