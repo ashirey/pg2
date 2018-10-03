@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 #define SERVER_PORT 41043
 #define MAX_PENDING 5
 #define MAX_LINE 4096
@@ -15,7 +16,8 @@ int main(int argc, char * argv[]){
 
 	struct sockaddr_in sin, client_addr;
 	char buf[MAX_LINE];
-	int len, addr_len;
+	int len;
+	socklen_t addr_len;
 	int s, new_s;
 	int opt = 1;
 

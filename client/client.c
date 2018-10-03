@@ -51,7 +51,10 @@ int main(int argc, char* argv[]){
 		close(s);
 		exit(1);
 	}
-
+	printf("client connected\n");
+	
+	// prompt for input
+	printf("enter a command:\n");
 	while (fgets(buf, sizeof(buf), stdin)){
 		buf[MAX_LINE-1] = '\0';
 		if(!strncmp(buf, "Exit", 4)){
@@ -75,6 +78,7 @@ int main(int argc, char* argv[]){
 			perror("client send error");
 			exit(1);
 		}
+		printf("enter a command:\n");
 	}
 
 	close(s);
