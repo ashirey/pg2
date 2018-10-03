@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
 			download(buf, s);
 		}
 		else if(!strncmp(buf, "LS", 2)){
-
+			list(buf, s);
 		}
 		printf("enter a command:\n");
 	}
@@ -78,12 +78,12 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-int list(char[], ins s){
+int list(char[], int s){
 	// send ls command to server
 
 	// receive size of directory listing, and go into loop
 
-	// display listings to user 
+	// display listings to user
 }
 
 
