@@ -10,7 +10,7 @@
 #include<unistd.h>
 
 #define SERVER_PORT 41043
-#define MAX_LINE 256
+#define MAX_LINE 4096
 
 int main(int argc, char* argv[]){
 	FILE *fp;
@@ -28,13 +28,13 @@ int main(int argc, char* argv[]){
 		printf("pass in host name as argument\n");
 		exit(1);
 	}
-	
+
 	hp = gethostbyname(host);
 	if(!hp){
 		fprintf(stderr, "simplex-talk: unknown host: %s\n", host);
 		exit(1);
 	}
-	
+
 	bzero((char *)&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
 	bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
@@ -58,6 +58,18 @@ int main(int argc, char* argv[]){
 			printf("exiting\n");
 			break;
 		}
+
+		// Handles LS function from user input
+		if(!strncmp(buf, "LS", 2)){
+			printf("LS function chosen for current directory\n");
+			if(send(s,buf,len,0)==-1){
+				perror("client send error");
+				exit(1);
+			}
+
+		}
+
+
 		len = strlen(buf) + 1;
 		if(send(s, buf, len, 0) == -1){
 			perror("client send error");
@@ -66,6 +78,6 @@ int main(int argc, char* argv[]){
 	}
 
 	close(s);
-	
+
 	return 0;
 }

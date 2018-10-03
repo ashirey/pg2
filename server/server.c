@@ -9,7 +9,7 @@
 #include <netdb.h>
 #define SERVER_PORT 41043
 #define MAX_PENDING 5
-#define MAX_LINE 256
+#define MAX_LINE 4096
 
 int main(int argc, char * argv[]){
 
@@ -63,6 +63,14 @@ int main(int argc, char * argv[]){
 			}
 			if (len==0) break;
 			printf("TCP Server Received:%s", buf);
+
+			// Server side LS functionality
+			if(!strncmp(buf, "LS", 2)){
+				printf("LS Function beginning from server side\n");
+				
+			}
+
+
 		}
 		printf("Client finishes, close the connection!\n");
 		close(new_s);
