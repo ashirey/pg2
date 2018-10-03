@@ -1,6 +1,4 @@
 // tcp server
-// by Abigail Shirey (ashirey) and Rita Shultz (rshult)
-// Computer Networks Program 2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +61,7 @@ int main(int argc, char * argv[]){
 	}
 
 	printf("Server started, waiting\n");
+	printf("Accepting connections at port %d\n", port);
 
 	/* wait for connection, then receive and print text */
 	addr_len = sizeof (client_addr);
@@ -71,6 +70,8 @@ int main(int argc, char * argv[]){
 			perror("simplex-talk: accept");
 			exit(1);
 		}
+
+		printf("Client connected at port %d\n", port);
 
 		while (1){
 			if((len=recv(new_s, buf, sizeof(buf), 0))==-1){
@@ -91,8 +92,8 @@ int main(int argc, char * argv[]){
 				download(new_s);
 			}
 		}
-		printf("Client closed the connection\n");
-		close(new_s);
+
+		close(new_s); // client finishes, close the connection!
 	}
 	close (s);
 	return 0;
@@ -134,6 +135,7 @@ int list(int new_s){
 
 	pclose(fp);
 	return 0;
+
 }
 
 void download(int new_s){
@@ -143,13 +145,15 @@ void download(int new_s){
 	int len;
 
 	// receive file name
-	if((len=recv(new_s, file, MAX_LINE, 0))==-1){
+	if((len=recv(new_s, file, sizeof(file), 0))==-1){
 		perror("Server Received Error!");
 		exit(1);
 	}
 	if (len==0){
 		exit(1);
 	}
+
+	printf("file name %s\n", file);
 
 	// check if file exists
 	f = fopen(file, "r");
@@ -167,7 +171,7 @@ void download(int new_s){
 		struct stat st;
 		if (stat(file, &st) == 0){
 			int32 = st.st_size;
-			int32 = htonl(int32);
+			htonl(int32);
 		}
 		else{
 			perror("can't get file stats\n");
@@ -177,6 +181,8 @@ void download(int new_s){
 			perror("error sending to client\n");
 			exit(1);
 		}
+
+
 		// calculate md5 hash
 		FILE * fp;
 		char md5cmd[MAX_LINE];
@@ -190,6 +196,7 @@ void download(int new_s){
 		}
 		while(fgets(output, sizeof(output), fp) != NULL){
 			hash = strtok(output, " ");
+			printf("hash: %sasdfa\n", hash);
 		}
 		strcpy(output, hash);
 		// return md5 hash to client
@@ -199,22 +206,8 @@ void download(int new_s){
 		}
 
 		// server sends file to client
-		bzero(buf, MAX_LINE);
-		while((len = fread(buf, sizeof(char), MAX_LINE, f))>0){
-			if( send(new_s, buf, sizeof(buf), 0) < 0){
-				perror("file send error\n");
-				exit(1);
-			}
-			bzero(buf, MAX_LINE);
-		
-		}
-		char * end_msg;
-		end_msg = "stop";
-		strcpy(buf, end_msg);
-		if( send(new_s, buf, MAX_LINE, 0) < 0){
-				perror("file send error\n");
-				exit(1);
-		}
-
+		/*fread(buf, 1, MAX_LINE, fp);
+		buf[MAX_BUF-1] = '\0';
+		fclose(fp);*/
 	}
 }
