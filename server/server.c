@@ -1,4 +1,6 @@
 // tcp server
+// by Abigail Shirey (ashirey) and Rita Shultz (rshultz)
+// Program 2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,15 +150,13 @@ void download(int new_s){
 	int len;
 
 	// receive file name
-	if((len=recv(new_s, file, sizeof(file), 0))==-1){
+	if((len=recv(new_s, file, MAX_LINE, 0))==-1){
 		perror("Server Received Error!");
 		exit(1);
 	}
 	if (len==0){
 		exit(1);
 	}
-
-	printf("file name %s\n", file);
 
 	// check if file exists
 	f = fopen(file, "r");
@@ -174,7 +174,7 @@ void download(int new_s){
 		struct stat st;
 		if (stat(file, &st) == 0){
 			int32 = st.st_size;
-			htonl(int32);
+			int32 = htonl(int32);
 		}
 		else{
 			perror("can't get file stats\n");
@@ -184,14 +184,13 @@ void download(int new_s){
 			perror("error sending to client\n");
 			exit(1);
 		}
-
-
+	
 		// calculate md5 hash
 		FILE * fp;
 		char md5cmd[MAX_LINE];
 		char output[MAX_LINE];
 		char * hash;
-
+		
 		sprintf(md5cmd, "md5sum %s", file);
 		if((fp=popen(md5cmd, "r")) == NULL){
 			perror("md5 sum failed");
@@ -199,7 +198,6 @@ void download(int new_s){
 		}
 		while(fgets(output, sizeof(output), fp) != NULL){
 			hash = strtok(output, " ");
-			printf("hash: %sasdfa\n", hash);
 		}
 		strcpy(output, hash);
 		// return md5 hash to client
@@ -207,11 +205,25 @@ void download(int new_s){
 			perror("error sending to client\n");
 			exit(1);
 		}
-
+		
 		// server sends file to client
-		/*fread(buf, 1, MAX_LINE, fp);
-		buf[MAX_BUF-1] = '\0';
-		fclose(fp);*/
+		bzero(buf, MAX_LINE);
+		while((len = fread(buf, sizeof(char), MAX_LINE, f))>0){
+			if( send(new_s, buf, sizeof(buf), 0) < 0){
+				perror("file send error\n");
+				exit(1);
+			}
+			bzero(buf, MAX_LINE);
+		
+		}
+		char * end_msg;
+		end_msg = "stop";
+		strcpy(buf, end_msg);
+		if( send(new_s, buf, MAX_LINE, 0) < 0){
+				perror("file send error\n");
+				exit(1);
+		}
+
 	}
 }
 
