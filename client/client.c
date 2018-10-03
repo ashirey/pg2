@@ -65,7 +65,6 @@ int main(int argc, char* argv[]){
 	while (fgets(buf, sizeof(buf), stdin)){
 		buf[MAX_LINE-1] = '\0';
 		if(!strncmp(buf, "EXIT", 4)){
-			printf("exiting\n");
 			break;
 		}
 		// DL
@@ -78,7 +77,7 @@ int main(int argc, char* argv[]){
 		else if(!strncmp(buf, "RM", 2)){
 			rm_file(buf, s);
 		}
-		printf("enter a command:\n");
+		printf("enter a command:\t");
 	}
 
 	close(s);
@@ -102,7 +101,7 @@ int main(int argc, char* argv[]){
  		exit(1);
  	}
  	// display listings to user
-	printf(buf);
+	printf("%s\n", buf);
  }
 
 void download(char buf[MAX_LINE], int s){
