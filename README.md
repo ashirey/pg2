@@ -37,6 +37,7 @@ following way:
   - (Here, the host name and port number are specified as the second and third
     command line arguments.)
 
+
 The following is a list of example commands to run this code from the client-
 side in the archive:
 - LS
@@ -69,3 +70,7 @@ side in the archive:
   - This causes the client to close its connection with the server, and end the
   executable's process.
   - Specific example: $ EXIT
+
+
+Any questions regarding the functionality of this code repository can be
+directed to Abigail Shirey (ashirey) or Rita Shultz (rshultz).
