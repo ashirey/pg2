@@ -6,10 +6,13 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/stat.h>
 #include <netdb.h>
 #include <unistd.h>
 #define MAX_PENDING 5
 #define MAX_LINE 256
+
+void download(int);
 
 int main(int argc, char * argv[]){
 
@@ -55,7 +58,7 @@ int main(int argc, char * argv[]){
 		exit(1);
 	}
 
-	printf("Welcome to the first TCP Server!\n");
+	printf("Server started, waiting\n");
 
 	/* wait for connection, then receive and print text */
 	addr_len = sizeof (client_addr);
@@ -72,10 +75,87 @@ int main(int argc, char * argv[]){
 			}
 			if (len==0) break;
 			printf("TCP Server Received: %s\n", buf);
+			if(!strncmp(buf, "DL", 2)){
+				download(new_s);
+			}
 		}
 		printf("Client finishes, close the connection!\n");
 		close(new_s);
 	}
 	close (s);
 	return 0;
+}
+
+void download(int new_s){
+	char file[MAX_LINE];
+	char buf[MAX_LINE];
+	FILE *f;
+	int len;
+
+	// receive file name
+	if((len=recv(new_s, file, sizeof(file), 0))==-1){
+		perror("Server Received Error!");
+		exit(1);
+	}
+	if (len==0){
+		exit(1);
+	}
+
+	printf("file name %s\n", file);
+	
+	// check if file exists
+	f = fopen(file, "r");
+	int32_t int32;
+	if (f == NULL){
+		int32 = -1;
+		// return a negative 1 to client and wait for another message
+		if (send(new_s, (char*)&int32, sizeof(int32), 0) == -1){
+			perror("error sending to client\n");
+			exit(1);
+		}
+	}
+	else{
+		// server returns the size of the file to the client
+		struct stat st;
+		if (stat(file, &st) == 0){
+			int32 = st.st_size;
+			htonl(int32);
+		}
+		else{
+			perror("can't get file stats\n");
+		}
+		// return a negative 1 to client and wait for another message
+		if (send(new_s, &int32, sizeof(int32_t), 0) == -1){
+			perror("error sending to client\n");
+			exit(1);
+		}
+
+	
+		// calculate md5 hash
+		FILE * fp;
+		char md5cmd[MAX_LINE];
+		char output[MAX_LINE];
+		char * hash;
+		
+		sprintf(md5cmd, "md5sum %s", file);
+		if((fp=popen(md5cmd, "r")) == NULL){
+			perror("md5 sum failed");
+			exit(1);
+		}
+		while(fgets(output, sizeof(output), fp) != NULL){
+			hash = strtok(output, " ");
+			printf("hash: %sasdfa\n", hash);
+		}
+		strcpy(output, hash);
+		// return md5 hash to client
+		if (send(new_s, output, sizeof(output), 0) == -1){
+			perror("error sending to client\n");
+			exit(1);
+		}
+		
+		// server sends file to client
+		/*fread(buf, 1, MAX_LINE, fp);
+		buf[MAX_BUF-1] = '\0';
+		fclose(fp);*/	
+	}
 }
