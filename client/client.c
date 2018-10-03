@@ -86,25 +86,25 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void list(int s){
-	// send ls command to server
-	char * cmd = "LS";
-	char buf[MAX_LINE];
-	ssize_t len;
-
-	if(send(s, cmd, sizeof(cmd), 0)==-1){
-		perror("client send error");
-		exit(1);
-	}
-	// receive size of directory listing, and go into loop
-	if((len=recv(s, buf, sizeof(buf), 0))==-1){
-		perror("received error\n");
-		exit(1);
-	}
+ int list(int s){
+ 	// send ls command to server
+ 	char * cmd = "LS";
+ 	char buf[MAX_LINE];
+ 	ssize_t len;
+ 
+ 	if(send(s, cmd, sizeof(cmd), 0)==-1){
+ 		perror("client send error");
+ 		return -1;
+ 	}
+ 	// receive size of directory listing, and go into loop
+ 	if((len=recv(s, buf, sizeof(buf), 0))==-1){
+ 		perror("received errorUMM\n");
+ 		return -1;
+ 	}
+ 	// display listings to user
 	printf(buf);
-
-	// display listings to user
-}
+ 	return 0;
+ }
 
 void download(char buf[MAX_LINE], int s){
 	struct timeval start, end;
