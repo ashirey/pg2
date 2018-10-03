@@ -17,6 +17,7 @@
 
 void download(char[], int s);
 void list(char[], int s);
+void rm_file(char[], int s);
 
 int main(int argc, char* argv[]){
 	struct hostent *hp;
@@ -72,6 +73,9 @@ int main(int argc, char* argv[]){
 		}
 		else if(!strncmp(buf, "LS", 2)){
 			list(buf, s);
+		}
+		else if(!strncmp(buf, "RM", 2)){
+			rm_file(buf, s);
 		}
 		printf("enter a command:\n");
 	}
@@ -182,4 +186,93 @@ void download(char buf[MAX_LINE], int s){
 	else{
 		printf("no file name given\n");
 	}
+}
+
+void rm_file(char buf[MAX_LINE], int s){
+	// send command
+	char * cmd = "RM";
+	if(send(s, cmd, sizeof(cmd), 0) == -1){
+		perror("client send error");
+		exit(1);
+	}
+
+	// get file name
+	char *f;
+	char file_buf[MAX_LINE];
+	int len; 
+	f = strtok(buf, " ");
+	if(f){
+		f = strtok(NULL, " \n");
+		strcpy(file_buf, f);
+		bzero(buf, MAX_LINE);
+		
+		// send file name so server can verify exists
+		if(send(s, file_buf, MAX_LINE, 0) == -1){
+			perror("client send error");
+			exit(1);
+		}
+		
+		// receive positive or negative confirmation
+		if((len=recv(s, buf, MAX_LINE, 0))==-1){	
+			perror("received error");
+			exit(1);
+		}
+		int result = atoi(buf);
+		
+		bzero(buf, MAX_LINE);
+		if(result < 0){
+			printf("The file does not exist on the server\n");
+			return;
+		}
+		else{
+			// check before deleting
+			bzero(buf, MAX_LINE);
+			printf("are you sure you want to delete %s?\n", f);
+			fgets(buf, sizeof(buf), stdin);	
+			if(!strncmp(buf, "Yes", 3) || !strncmp(buf, "yes", 3)){
+				// send deletion request
+				char * del = "delete";
+				bzero(buf, MAX_LINE);
+				strcpy(buf, del);
+				
+				if(send(s, buf, MAX_LINE, 0) == -1){
+					perror("client send error");
+					exit(1);
+				}
+				
+				bzero(buf, MAX_LINE);
+				// receive positive or negative confirmation of deletion
+				if((len=recv(s, buf, MAX_LINE, 0))==-1){
+					perror("received error");
+					exit(1);
+				}
+				
+				result = atoi(buf);
+				
+				if(result > 0){
+					printf("file deleted\n");
+				}
+			}
+			else{
+				printf("delete abandoned by the user\n");
+
+				// send fake deletion request
+				char * del = "no delete";
+				bzero(buf, MAX_LINE);
+				strcpy(buf, del);
+				
+				if(send(s, buf, MAX_LINE, 0) == -1){
+					perror("client send error");
+					exit(1);
+				}
+				
+				bzero(buf, MAX_LINE);
+
+			}
+		}
+	}
+	else{
+		printf("error: no file name given");
+	}
+
 }
