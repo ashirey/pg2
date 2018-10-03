@@ -9,4 +9,4 @@ client.o: client.c
 	$(CC) -Wall -c client.c -o client.o
 
 clean:
-	-rm *.o
+	-rm *.o client 
